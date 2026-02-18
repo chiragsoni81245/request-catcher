@@ -2,6 +2,11 @@ name: Build and Push Docker Image
 
 on:
   workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Docker image tag (e.g. v1.0.0, latest)'
+        required: true
+        default: latest
 
 jobs:
   docker:
@@ -34,3 +39,4 @@ jobs:
           push: true
           tags: |
             chiragsoni812/request-catcher:latest
+            chiragsoni812/request-catcher:${{ github.event.inputs.image_tag }}

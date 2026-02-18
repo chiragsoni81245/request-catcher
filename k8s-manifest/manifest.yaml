@@ -22,9 +22,20 @@ spec:
       labels:
         app: request-catcher
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values:
+                      - us-east-1a
+                      - us-east-1b
+                      - us-east-1d
       containers:
         - name: request-catcher
-          image: chiragsoni812/request-catcher:latest
+          image: chiragsoni812/request-catcher:v1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -63,27 +74,32 @@ spec:
       port: 80
       targetPort: 8080
 
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: request-catcher-alb
-#   namespace: testing
-#   annotations:
-#     kubernetes.io/ingress.class: alb
-# spec:
-#   ingressClassName: alb
-#   rules:
-#     - host: request-catcher-alb.talemetry-sandbox.net
-#       http:
-#         paths:
-#           - path: /
-#             pathType: Prefix
-#             backend:
-#               service:
-#                 name: request-catcher
-#                 port:
-#                   number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: request-catcher-alb
+  namespace: testing
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:082138612467:certificate/97655a8b-d570-413d-99ea-9fb9695ca949"
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+spec:
+  ingressClassName: alb
+  rules:
+    - host: request-catcher-alb.talemetry-sandbox.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: request-catcher
+                port:
+                  number: 80
 
 ---
 apiVersion: networking.k8s.io/v1

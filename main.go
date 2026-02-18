@@ -11,12 +11,26 @@ import (
 
 func main() {
 	port := "8080"
-
+	
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK\n"))
+	})
+
+	http.HandleFunc("/check", func(w http.ResponseWriter, r *http.Request) {
 		printRequest(r)
 
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Request received\n"))
+	})
+
+	http.HandleFunc("/bg-task", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("Starting Background Task [waiting 20s...]")
+		time.Sleep(20 * time.Second)
+		fmt.Printf("Background Task Completed [waiting 20s...]")
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("background task completed\n"))
 	})
 
 	log.Printf("Starting server on :%s\n", port)

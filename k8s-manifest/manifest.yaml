@@ -63,38 +63,18 @@ spec:
       port: 80
       targetPort: 8080
 
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: request-catcher-alb
-  namespace: testing
-  annotations:
-    kubernetes.io/ingress.class: alb
-spec:
-  rules:
-    - host: request-catcher-alb.talemetry-sandbox.net
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: request-catcher
-                port:
-                  number: 80
-
 # ---
 # apiVersion: networking.k8s.io/v1
 # kind: Ingress
 # metadata:
-#   name: request-catcher-f5-nginx
+#   name: request-catcher-alb
 #   namespace: testing
 #   annotations:
-#     kubernetes.io/ingress.class: f5-nginx
+#     kubernetes.io/ingress.class: alb
 # spec:
+#   ingressClassName: alb
 #   rules:
-#     - host: request-catcher-f5-nginx.talemetry-sandbox.net
+#     - host: request-catcher-alb.talemetry-sandbox.net
 #       http:
 #         paths:
 #           - path: /
@@ -104,3 +84,25 @@ spec:
 #                 name: request-catcher
 #                 port:
 #                   number: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: request-catcher-f5-nginx
+  namespace: testing
+  annotations:
+    kubernetes.io/ingress.class: f5-nginx
+spec:
+  ingressClassName: f5-nginx
+  rules:
+    - host: request-catcher-f5-nginx.talemetry-sandbox.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: request-catcher
+                port:
+                  number: 80

@@ -1,0 +1,106 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: testing
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: request-catcher
+  namespace: testing
+  labels:
+    app: request-catcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: request-catcher
+  template:
+    metadata:
+      labels:
+        app: request-catcher
+    spec:
+      containers:
+        - name: request-catcher
+          image: chiragsoni812/request-catcher:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: request-catcher
+  namespace: testing
+spec:
+  type: ClusterIP
+  selector:
+    app: request-catcher
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: request-catcher-alb
+  namespace: testing
+  annotations:
+    kubernetes.io/ingress.class: alb
+spec:
+  rules:
+    - host: request-catcher-alb.talemetry-sandbox.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: request-catcher
+                port:
+                  number: 80
+
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: request-catcher-f5-nginx
+#   namespace: testing
+#   annotations:
+#     kubernetes.io/ingress.class: f5-nginx
+# spec:
+#   rules:
+#     - host: request-catcher-f5-nginx.talemetry-sandbox.net
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: request-catcher
+#                 port:
+#                   number: 80

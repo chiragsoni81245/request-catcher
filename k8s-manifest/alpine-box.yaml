@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpine-deployment
+  labels:
+    app: alpine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpine
+  template:
+    metadata:
+      labels:
+        app: alpine
+    spec:
+      containers:
+      - name: alpine
+        image: alpine:latest
+        command: ["/bin/sh"]
+        args: ["-c", "sleep infinity;"]
+        # env:
+        #   - name: HTTPS_PROXY
+        #     value: "http://proxy.svcs.us-east-2.priv.jazzhr.com:3128/"
+        #   - name: HTTP_PROXY
+        #     value: "http://proxy.svcs.us-east-2.priv.jazzhr.com:3128/"
+        #   - name: NO_PROXY
+        #     value: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local,cattle-system.svc,.priv.jazzhr.com,.jazz.systems,.cattle-system,.eks.amazonaws.com"
+        resources:
+          limits:
+            memory: "64Mi"
+            cpu: "250m"
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+

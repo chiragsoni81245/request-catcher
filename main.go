@@ -5,14 +5,16 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
 
 func main() {
 	port := "8080"
-	
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("X-Server-Name", os.Getenv("HOSTNAME"))
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK\n"))
 	})
@@ -20,6 +22,7 @@ func main() {
 	http.HandleFunc("/check", func(w http.ResponseWriter, r *http.Request) {
 		printRequest(r)
 
+		w.Header().Add("X-Server-Name", os.Getenv("HOSTNAME"))
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Request received\n"))
 	})
@@ -29,6 +32,7 @@ func main() {
 		time.Sleep(20 * time.Second)
 		fmt.Printf("Background Task Completed [waiting 20s...] \n")
 
+		w.Header().Add("X-Server-Name", os.Getenv("HOSTNAME"))
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("background task completed\n"))
 	})
@@ -84,4 +88,3 @@ func indent(text, prefix string) string {
 	}
 	return strings.Join(lines, "\n")
 }
-

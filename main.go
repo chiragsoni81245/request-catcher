@@ -15,6 +15,7 @@ import (
 func withMiddleware(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("X-Server-Name", os.Getenv("HOSTNAME"))
+		w.Header().Add("X-Service-Name", os.Getenv("SERVICE_NAME"))
 		handler(w, r)
 	}
 }

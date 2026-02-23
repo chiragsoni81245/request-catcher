@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: request-catcher
+  namespace: testing
+  labels:
+    app: request-catcher
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: request-catcher
+  template:
+    metadata:
+      labels:
+        app: request-catcher
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: topology.kubernetes.io/zone
+                    operator: In
+                    values:
+                      - us-east-1a
+                      - us-east-1b
+                      - us-east-1d
+      containers:
+        - name: request-catcher
+          image: chiragsoni812/request-catcher:v1.0.3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+          - name: SERVICE_NAME
+            value: "request-catcher"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 20

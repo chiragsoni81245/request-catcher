@@ -29,7 +29,7 @@ spec:
                       - us-east-1d
       containers:
         - name: request-catcher
-          image: chiragsoni812/request-catcher:v1.0.3
+          image: chiragsoni812/request-catcher:v1.0.4
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

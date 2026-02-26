@@ -136,10 +136,11 @@ func printRequest(r *http.Request) {
 
 	if r.Body != nil {
 		bodyBytes, err := io.ReadAll(r.Body)
+
 		if err != nil {
 			fmt.Printf("  Error reading body: %v\n", err)
 		} else if len(bodyBytes) > 0 {
-			fmt.Println(indent(string(bodyBytes), "  "))
+			fmt.Printf("Body Size: %vMB\n", len(bodyBytes)/1024/1024)
 		} else {
 			fmt.Println("  <empty>")
 		}
